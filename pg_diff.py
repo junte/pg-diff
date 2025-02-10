@@ -34,23 +34,23 @@ for line in sys.stdin.readlines():
     heading = re.match(HEADING_PATTERN, line)
     if heading:
         current_type = TOC.get(heading.group(1))
-    elif current_type in {
-        DBChanges.ColumnAdded,
-        DBChanges.ColumnDeleted,
-        DBChanges.ColumnChanged,
-    }:
-        column_name = re.match(COLUMN_PATTERN, line)
-        columns_changes.setdefault(current_type, {}).setdefault(
-            column_name.group(1),
-            [],
-        ).append(column_name.group(2))
-    else:
-        table_name = re.match(TABLE_PATTERN, line)
-        if table_name:
-            tables_changes.setdefault(
-                current_type,
+        continue
+
+    match current_type:
+        case DBChanges.ColumnAdded | DBChanges.ColumnDeleted | DBChanges.ColumnChanged:
+            column_name = re.match(COLUMN_PATTERN, line)
+            columns_changes.setdefault(current_type, {}).setdefault(
+                column_name.group(1),
                 [],
-            ).append(table_name.group(1))
+            ).append(column_name.group(2))
+        case DBChanges.TableAdded | DBChanges.TableDeleted | DBChanges.TableChanged:
+            table_name = re.match(TABLE_PATTERN, line)
+            if table_name:
+                tables_changes.setdefault(
+                    current_type,
+                    [],
+                ).append(table_name.group(1))
+
 
 sys.stdout.write("*" * 100 + "\n")
 sys.stdout.write(" " * 42 + "DB changes report\n")
