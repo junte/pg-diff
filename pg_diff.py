@@ -37,13 +37,13 @@ for line in sys.stdin.readlines():
         continue
 
     match current_type:
-        case DBChanges.ColumnAdded | DBChanges.ColumnDeleted | DBChanges.ColumnChanged:
+        case DBChanges.ColumnAdded | DBChanges.ColumnDeleted:
             column_name = re.match(COLUMN_PATTERN, line)
             columns_changes.setdefault(current_type, {}).setdefault(
                 column_name.group(1),
                 [],
             ).append(column_name.group(2))
-        case DBChanges.TableAdded | DBChanges.TableDeleted | DBChanges.TableChanged:
+        case DBChanges.TableAdded | DBChanges.TableDeleted:
             table_name = re.match(TABLE_PATTERN, line)
             if table_name:
                 tables_changes.setdefault(
@@ -84,3 +84,5 @@ for change_type, tables in columns_changes.items():
                 for column in columns
             ],
         )
+
+sys.stdout.write("\n")
